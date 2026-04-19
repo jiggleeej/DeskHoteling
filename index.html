@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mindspace Desk Booking</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f5f3;color:#1a1a1a;padding:1.5rem}
+.app{max-width:700px;margin:0 auto}
+h1{font-size:20px;font-weight:500;margin-bottom:4px}
+.sub{font-size:13px;color:#666;margin-bottom:1.5rem}
+.date-nav{display:flex;align-items:center;gap:12px;margin-bottom:1.5rem}
+.date-nav button{background:#fff;border:1px solid #ddd;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px}
+.date-nav button:hover{background:#f0f0ee}
+.date-label{font-size:15px;font-weight:500;flex:1;text-align:center}
+.layout-row{display:flex;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.office-map{flex:0 0 200px}
+.office-map h3,.time-panel h3{font-size:13px;color:#666;margin-bottom:8px;font-weight:400}
+.map-wrap{border:1px solid #e0e0dd;border-radius:8px;background:#fafaf8;padding:8px}
+.time-panel{flex:1;min-width:200px}
+.time-grid{display:grid;grid-template-columns:56px 1fr}
+.time-label{font-size:11px;color:#999;padding-right:6px;text-align:right;display:flex;align-items:center;justify-content:flex-end;height:32px}
+.slot-row{display:flex;gap:3px;padding:2px 0;border-top:1px solid #eee;height:32px;align-items:center}
+.slot{flex:1;height:26px;border-radius:4px;cursor:pointer;border:1px solid transparent;transition:background .1s}
+.slot.free{background:#f0f0ee;border-color:#e0e0dd}
+.slot.free:hover{border-color:#9fe1cb;background:#e1f5ee}
+.slot.booked{background:#9fe1cb;border-color:#5dcaa5;cursor:default}
+.slot.mine{background:#b5d4f4;border-color:#85b7eb;cursor:pointer}
+.slot.selected{background:#5dcaa5;border-color:#1d9e75}
+.desk-labels{display:flex;gap:3px;padding-bottom:4px}
+.desk-lbl{flex:1;font-size:10px;color:#888;text-align:center}
+.legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.booking-panel{background:#fff;border:1px solid #e0e0dd;border-radius:12px;padding:1.25rem}
+.booking-panel h3{font-size:15px;font-weight:500;margin-bottom:12px}
+.form-row{margin-bottom:12px}
+.form-row label{font-size:13px;color:#666;display:block;margin-bottom:4px}
+.form-row input{width:100%;border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
+.form-row input:focus{outline:none;border-color:#5dcaa5}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn-book{background:#1d9e75;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;font-weight:500}
+.btn-book:hover{background:#0f6e56}
+.btn-book:disabled{background:#eee;color:#aaa;cursor:default}
+.btn-cancel{background:#fff;color:#a32d2d;border:1px solid #f09595;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer;display:none}
+.btn-cancel:hover{background:#fcebeb}
+.sel-info{font-size:13px;color:#666;margin-bottom:12px;min-height:18px}
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
+.msg.success{background:#e1f5ee;color:#0f6e56;border:1px solid #5dcaa5}
+.msg.error{background:#fcebeb;color:#a32d2d;border:1px solid #f09595}
+.msg.loading{background:#f0f0ee;color:#555;border:1px solid #ddd}
+.mdbtn{cursor:pointer}
+.mdbtn:hover rect{opacity:.8}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #ccc;border-top-color:#1d9e75;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Mindspace desk booking</h1>
+  <p class="sub">1301 K St NW &mdash; 6 desks, hourly booking, 9am&ndash;5pm</p>
+
+  <div class="date-nav">
+    <button onclick="changeDay(-1)">&#8592; prev</button>
+    <span class="date-label" id="date-label"></span>
+    <button onclick="changeDay(1)">next &#8594;</button>
+  </div>
+
+  <div class="layout-row">
+    <div class="office-map">
+      <h3>Office layout</h3>
+      <div class="map-wrap">
+        <svg viewBox="0 0 180 148" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <rect x="4" y="4" width="172" height="140" rx="4" fill="none" stroke="#ccc" stroke-width="1.5"/>
+          <rect x="72" y="3" width="36" height="5" rx="1" fill="#fafaf8"/>
+          <text x="90" y="8" font-size="5.5" fill="#aaa" text-anchor="middle">door</text>
+          <g id="md1" class="mdbtn" onclick="selectDesk(0)">
+            <rect id="mr1" x="138" y="18" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="157" y="28" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D1</text>
+            <text x="171" y="29" font-size="8" fill="#0f6e56" text-anchor="middle">›</text>
+          </g>
+          <g id="md2" class="mdbtn" onclick="selectDesk(1)">
+            <rect id="mr2" x="138" y="38" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="157" y="48" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D2</text>
+            <text x="171" y="49" font-size="8" fill="#0f6e56" text-anchor="middle">›</text>
+          </g>
+          <g id="md3" class="mdbtn" onclick="selectDesk(2)">
+            <rect id="mr3" x="138" y="58" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="157" y="68" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D3</text>
+            <text x="171" y="69" font-size="8" fill="#0f6e56" text-anchor="middle">›</text>
+          </g>
+          <g id="md4" class="mdbtn" onclick="selectDesk(3)">
+            <rect id="mr4" x="4" y="18" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="23" y="27" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D4</text>
+            <text x="23" y="36" font-size="8" fill="#0f6e56" text-anchor="middle">↓</text>
+          </g>
+          <g id="md5" class="mdbtn" onclick="selectDesk(4)">
+            <rect id="mr5" x="4" y="40" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="23" y="53" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D5</text>
+            <text x="23" y="42" font-size="8" fill="#0f6e56" text-anchor="middle">↑</text>
+          </g>
+          <g id="md6" class="mdbtn" onclick="selectDesk(5)">
+            <rect id="mr6" x="4" y="78" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
+            <text x="23" y="88" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D6</text>
+            <text x="23" y="97" font-size="6" fill="#0f6e56" text-anchor="middle">solo</text>
+          </g>
+          <text x="168" y="50" font-size="5" fill="#bbb" text-anchor="middle" transform="rotate(90,168,50)">right wall</text>
+          <text x="12" y="80" font-size="5" fill="#bbb" text-anchor="middle" transform="rotate(-90,12,80)">left wall</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="time-panel">
+      <h3>Hourly availability — click a slot to select</h3>
+      <div class="time-grid">
+        <div></div>
+        <div class="desk-labels" id="desk-labels"></div>
+        <div id="tlcol"></div>
+        <div id="trows"></div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#f0f0ee;border:1px solid #e0e0dd"></div>free</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#9fe1cb;border:1px solid #5dcaa5"></div>booked</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#b5d4f4;border:1px solid #85b7eb"></div>your booking</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#5dcaa5;border:1px solid #1d9e75"></div>selected</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="booking-panel">
+    <h3>Book a desk</h3>
+    <div class="msg" id="msg" style="display:none"></div>
+    <div class="sel-info" id="sel-info">Select a desk and time slot above to book.</div>
+    <div class="form-row">
+      <label>Company email</label>
+      <input type="email" id="email-in" placeholder="you@buildwithin.com"/>
+    </div>
+    <div class="form-row">
+      <label>Your name</label>
+      <input type="text" id="name-in" placeholder="First name"/>
+    </div>
+    <div class="actions">
+      <button class="btn-book" id="book-btn" onclick="doBook()" disabled>Book desk</button>
+      <button class="btn-cancel" id="cancel-btn" onclick="doCancel()">Cancel my booking</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+// Replace this URL after you deploy the Apps Script web app:
+const SCRIPT_URL = 'https://script.google.com/a/macros/buildwithin.com/s/AKfycbx4toGoAqhpldfEGeq7Esk7U3DxCE3jq81CRmThoh7gCwTEKxUFSvXqw5E-lCECWo47RQ/exec';
+const DOMAIN = 'buildwithin.com';
+// ────────────────────────────────────────────────────────────
+
+const DESKS = ['D1','D2','D3','D4','D5','D6'];
+const HOURS = ['9am','10am','11am','12pm','1pm','2pm','3pm','4pm'];
+
+let day = 0;
+let bookings = {}; // { 'YYYY-MM-DD': { 'D1-9am': {name, email}, ... } }
+let mine = {};     // { 'YYYY-MM-DDdeskKey': true }
+let sel = null;
+let loading = false;
+
+function dk(o) {
+  const d = new Date();
+  d.setDate(d.getDate() + o);
+  return d.toISOString().slice(0,10);
+}
+function fmt(o) {
+  const d = new Date();
+  d.setDate(d.getDate() + o);
+  return d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+}
+
+async function fetchBookings(dateStr) {
+  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    // Demo mode — no backend yet
+    if (!bookings[dateStr]) bookings[dateStr] = {};
+    return;
+  }
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=getBookings&date=${dateStr}`);
+    const data = await res.json();
+    bookings[dateStr] = data.bookings || {};
+  } catch(e) {
+    showMsg('Could not load bookings. Check your connection.', 'error');
+    if (!bookings[dateStr]) bookings[dateStr] = {};
+  }
+}
+
+function changeDay(d) { day += d; sel = null; loadAndRender(); }
+function selectDesk(di) {
+  sel = (sel && sel.d === di && sel.h === null) ? null : {d: di, h: sel ? sel.h : null};
+  render();
+}
+function toggleSlot(di, hi) {
+  const key = `${DESKS[di]}-${HOURS[hi]}`;
+  const dateStr = dk(day);
+  if (bookings[dateStr] && bookings[dateStr][key] && !mine[dateStr+key]) return;
+  sel = (sel && sel.d === di && sel.h === hi) ? null : {d: di, h: hi};
+  render();
+}
+
+async function doBook() {
+  const email = document.getElementById('email-in').value.trim();
+  const name = document.getElementById('name-in').value.trim();
+  if (!sel || sel.h === null) { showMsg('Select a desk and time slot first.', 'error'); return; }
+  if (!email || !email.endsWith('@' + DOMAIN)) { showMsg('Use your @' + DOMAIN + ' company email.', 'error'); return; }
+  if (!name) { showMsg('Enter your name.', 'error'); return; }
+
+  const dateStr = dk(day);
+  const deskKey = `${DESKS[sel.d]}-${HOURS[sel.h]}`;
+
+  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    // Demo mode
+    if (!bookings[dateStr]) bookings[dateStr] = {};
+    bookings[dateStr][deskKey] = { name, email };
+    mine[dateStr + deskKey] = true;
+    showMsg(`Booked! ${DESKS[sel.d]} at ${HOURS[sel.h]} on ${fmt(day)} for ${name}.`, 'success');
+    sel = null; render(); return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'book', date: dateStr, desk: DESKS[sel.d], hour: HOURS[sel.h], name, email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (!bookings[dateStr]) bookings[dateStr] = {};
+      bookings[dateStr][deskKey] = { name, email };
+      mine[dateStr + deskKey] = true;
+      showMsg(data.message, 'success');
+      sel = null;
+    } else {
+      showMsg(data.error || 'Booking failed.', 'error');
+      await fetchBookings(dateStr); // refresh in case of conflict
+    }
+  } catch(e) {
+    showMsg('Could not connect. Please try again.', 'error');
+  }
+  setLoading(false);
+  render();
+}
+
+async function doCancel() {
+  const email = document.getElementById('email-in').value.trim();
+  if (!sel || sel.h === null) { showMsg('Select your booked slot to cancel it.', 'error'); return; }
+  if (!email) { showMsg('Enter your email to cancel.', 'error'); return; }
+
+  const dateStr = dk(day);
+  const deskKey = `${DESKS[sel.d]}-${HOURS[sel.h]}`;
+
+  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    delete bookings[dateStr][deskKey];
+    delete mine[dateStr + deskKey];
+    showMsg('Booking cancelled.', 'success');
+    sel = null; render(); return;
+  }
+
+  setLoading(true);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'cancel', date: dateStr, desk: DESKS[sel.d], hour: HOURS[sel.h], email })
+    });
+    const data = await res.json();
+    if (data.success) {
+      delete bookings[dateStr][deskKey];
+      delete mine[dateStr + deskKey];
+      showMsg('Booking cancelled.', 'success');
+      sel = null;
+    } else {
+      showMsg(data.error || 'Could not cancel.', 'error');
+    }
+  } catch(e) {
+    showMsg('Could not connect. Please try again.', 'error');
+  }
+  setLoading(false);
+  render();
+}
+
+function setLoading(on) {
+  loading = on;
+  document.getElementById('book-btn').disabled = on || !sel || sel.h === null;
+  if (on) showMsg('<span class="spinner"></span>Saving...', 'loading');
+}
+
+function showMsg(html, type) {
+  const el = document.getElementById('msg');
+  el.innerHTML = html;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+  if (type !== 'loading') setTimeout(() => el.style.display = 'none', 5000);
+}
+
+async function loadAndRender() {
+  const dateStr = dk(day);
+  document.getElementById('date-label').textContent = fmt(day);
+  if (!bookings[dateStr]) {
+    showMsg('<span class="spinner"></span>Loading...', 'loading');
+    await fetchBookings(dateStr);
+    document.getElementById('msg').style.display = 'none';
+  }
+  render();
+}
+
+function render() {
+  const dateStr = dk(day);
+  const bk = bookings[dateStr] || {};
+  document.getElementById('date-label').textContent = fmt(day);
+  document.getElementById('desk-labels').innerHTML = DESKS.map(d => `<div class="desk-lbl">${d}</div>`).join('');
+
+  const tlcol = document.getElementById('tlcol');
+  const trows = document.getElementById('trows');
+  tlcol.innerHTML = ''; trows.innerHTML = '';
+
+  HOURS.forEach((h, hi) => {
+    const tl = document.createElement('div'); tl.className = 'time-label'; tl.textContent = h; tlcol.appendChild(tl);
+    const row = document.createElement('div'); row.className = 'slot-row';
+    DESKS.forEach((_, di) => {
+      const key = `${DESKS[di]}-${HOURS[hi]}`;
+      const s = document.createElement('div');
+      const booked = bk[key] && !mine[dateStr + key];
+      const isMine = mine[dateStr + key];
+      const isSel = sel && sel.d === di && sel.h === hi;
+      s.className = 'slot ' + (isSel ? 'selected' : booked ? 'booked' : isMine ? 'mine' : 'free');
+      if (!booked) s.onclick = () => toggleSlot(di, hi);
+      row.appendChild(s);
+    });
+    trows.appendChild(row);
+  });
+
+  DESKS.forEach((_, di) => {
+    const r = document.getElementById(`mr${di+1}`); if (!r) return;
+    const allBooked = HOURS.every((_, hi) => { const k = `${DESKS[di]}-${HOURS[hi]}`; return bk[k] && !mine[dateStr+k]; });
+    const isSel = sel && sel.d === di;
+    if (isSel)       { r.setAttribute('fill','#5dcaa5'); r.setAttribute('stroke','#1d9e75'); }
+    else if (allBooked) { r.setAttribute('fill','#f5c4b3'); r.setAttribute('stroke','#d85a30'); }
+    else             { r.setAttribute('fill','#e1f5ee'); r.setAttribute('stroke','#5dcaa5'); }
+  });
+
+  const si = document.getElementById('sel-info');
+  const btn = document.getElementById('book-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
+
+  if (sel && sel.h !== null) {
+    const key = `${DESKS[sel.d]}-${HOURS[sel.h]}`;
+    const isMine = mine[dk(day) + key];
+    si.textContent = `Selected: ${DESKS[sel.d]} at ${HOURS[sel.h]}`;
+    btn.disabled = loading || isMine;
+    cancelBtn.style.display = isMine ? 'inline-block' : 'none';
+  } else if (sel) {
+    si.textContent = `${DESKS[sel.d]} selected — now pick a time slot.`;
+    btn.disabled = true;
+    cancelBtn.style.display = 'none';
+  } else {
+    si.textContent = 'Select a desk and time slot above to book.';
+    btn.disabled = true;
+    cancelBtn.style.display = 'none';
+  }
+}
+
+loadAndRender();
+</script>
+</body>
+</html>
