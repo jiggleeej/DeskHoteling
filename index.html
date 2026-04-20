@@ -197,8 +197,9 @@ let activeTab = 'book';
   HOURS.forEach(h => el.innerHTML += `<option value="${h}">${h}</option>`);
 });
 
-// Set cancel date default to today
-const today = new Date().toISOString().slice(0,10);
+// Set cancel date default to today using local date
+const _now = new Date();
+const today = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
 document.getElementById('cancel-date').value = today;
 
 
