@@ -360,7 +360,7 @@ function showMsg(tab, html, type) {
 async function loadAndRender() {
   const dateStr = dk(day);
   document.getElementById('date-label').textContent = fmt(day);
-  if (!bookings[dateStr]) await fetchBookings(dateStr);
+  await fetchBookings(dateStr);
   render();
 }
 
