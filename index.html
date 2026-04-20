@@ -28,22 +28,32 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .slot.booked{background:#9fe1cb;border-color:#5dcaa5;cursor:default}
 .slot.mine{background:#b5d4f4;border-color:#85b7eb;cursor:pointer}
 .slot.selected{background:#5dcaa5;border-color:#1d9e75}
+.slot.in-range{background:#c8eee3;border-color:#5dcaa5}
 .desk-labels{display:flex;gap:3px;padding-bottom:4px}
 .desk-lbl{flex:1;font-size:10px;color:#888;text-align:center}
 .legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
 .leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
 .leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.tabs{display:flex;gap:0;margin-bottom:1rem;border-bottom:1px solid #e0e0dd}
+.tab{padding:8px 18px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#1d9e75;border-bottom-color:#1d9e75;font-weight:500}
+.tab-panel{display:none}.tab-panel.active{display:block}
 .booking-panel{background:#fff;border:1px solid #e0e0dd;border-radius:12px;padding:1.25rem}
-.booking-panel h3{font-size:15px;font-weight:500;margin-bottom:12px}
+.booking-panel h3{font-size:15px;font-weight:500;margin-bottom:4px}
+.panel-sub{font-size:12px;color:#888;margin-bottom:14px}
 .form-row{margin-bottom:12px}
 .form-row label{font-size:13px;color:#666;display:block;margin-bottom:4px}
-.form-row input{width:100%;border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:13px;background:#fff}
+.form-row input,select{width:100%;border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;color:#1a1a1a}
 .form-row input:focus{outline:none;border-color:#5dcaa5}
-.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.btn-book{background:#1d9e75;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;font-weight:500}
+.form-row select:focus{outline:none;border-color:#5dcaa5}
+.hour-range{display:flex;align-items:center;gap:8px}
+.hour-range select{flex:1}
+.hour-range span{font-size:13px;color:#999}
+.btn{border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;font-weight:500;border:none}
+.btn-book{background:#1d9e75;color:#fff}
 .btn-book:hover{background:#0f6e56}
 .btn-book:disabled{background:#eee;color:#aaa;cursor:default}
-.btn-cancel{background:#fff;color:#a32d2d;border:1px solid #f09595;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer;display:none}
+.btn-cancel{background:#fff;color:#a32d2d;border:1px solid #f09595!important;border-width:1px;border-style:solid}
 .btn-cancel:hover{background:#fcebeb}
 .sel-info{font-size:13px;color:#666;margin-bottom:12px;min-height:18px}
 .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
@@ -54,6 +64,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .mdbtn:hover rect{opacity:.8}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid #ccc;border-top-color:#1d9e75;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+.hint{font-size:12px;color:#aaa;margin-top:4px}
 </style>
 </head>
 <body>
@@ -112,7 +123,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
     </div>
 
     <div class="time-panel">
-      <h3>Hourly availability — click a slot to select</h3>
+      <h3>Availability — click a desk, then pick hours below</h3>
       <div class="time-grid">
         <div></div>
         <div class="desk-labels" id="desk-labels"></div>
@@ -123,187 +134,242 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
         <div class="leg-item"><div class="leg-dot" style="background:#f0f0ee;border:1px solid #e0e0dd"></div>free</div>
         <div class="leg-item"><div class="leg-dot" style="background:#9fe1cb;border:1px solid #5dcaa5"></div>booked</div>
         <div class="leg-item"><div class="leg-dot" style="background:#b5d4f4;border:1px solid #85b7eb"></div>your booking</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#5dcaa5;border:1px solid #1d9e75"></div>selected</div>
       </div>
     </div>
   </div>
 
   <div class="booking-panel">
-    <h3>Book a desk</h3>
-    <div class="msg" id="msg" style="display:none"></div>
-    <div class="sel-info" id="sel-info">Select a desk and time slot above to book.</div>
-    <div class="form-row">
-      <label>Company email</label>
-      <input type="email" id="email-in" placeholder="you@buildwithin.com"/>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('book')">Book a desk</button>
+      <button class="tab" onclick="switchTab('cancel')">Cancel a booking</button>
     </div>
-    <div class="form-row">
-      <label>Your name</label>
-      <input type="text" id="name-in" placeholder="First name"/>
+
+    <!-- BOOK TAB -->
+    <div class="tab-panel active" id="tab-book">
+      <div class="msg" id="msg-book" style="display:none"></div>
+      <div class="form-row">
+        <label>Desk</label>
+        <select id="desk-select" onchange="syncDeskFromForm()">
+          <option value="">— select a desk —</option>
+          <option>D1</option><option>D2</option><option>D3</option>
+          <option>D4</option><option>D5</option><option>D6</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Time</label>
+        <div class="hour-range">
+          <select id="from-select"><option value="">from</option></select>
+          <span>to</span>
+          <select id="to-select"><option value="">to</option></select>
+        </div>
+        <p class="hint">Select a desk on the map or above, then choose a start and end time.</p>
+      </div>
+      <div class="form-row">
+        <label>Your name</label>
+        <input type="text" id="name-in" placeholder="First name"/>
+      </div>
+      <div class="form-row">
+        <label>Company email</label>
+        <input type="email" id="email-in" placeholder="you@buildwithin.com"/>
+      </div>
+      <button class="btn btn-book" id="book-btn" onclick="doBook()">Book desk</button>
     </div>
-    <div class="actions">
-      <button class="btn-book" id="book-btn" onclick="doBook()" disabled>Book desk</button>
-      <button class="btn-cancel" id="cancel-btn" onclick="doCancel()">Cancel my booking</button>
+
+    <!-- CANCEL TAB -->
+    <div class="tab-panel" id="tab-cancel">
+      <p class="panel-sub">Enter your email and select the booking you want to cancel.</p>
+      <div class="msg" id="msg-cancel" style="display:none"></div>
+      <div class="form-row">
+        <label>Your company email</label>
+        <input type="email" id="cancel-email" placeholder="you@buildwithin.com"/>
+      </div>
+      <div class="form-row">
+        <label>Desk</label>
+        <select id="cancel-desk">
+          <option value="">— select a desk —</option>
+          <option>D1</option><option>D2</option><option>D3</option>
+          <option>D4</option><option>D5</option><option>D6</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Hour to cancel</label>
+        <select id="cancel-hour">
+          <option value="">— select hour —</option>
+        </select>
+      </div>
+      <button class="btn btn-cancel" onclick="doCancel()" style="border:1px solid #f09595">Cancel booking</button>
     </div>
   </div>
 </div>
 
 <script>
-// ── CONFIG ──────────────────────────────────────────────────
-// Replace this URL after you deploy the Apps Script web app:
 const SCRIPT_URL = 'https://script.google.com/a/macros/buildwithin.com/s/AKfycbx4toGoAqhpldfEGeq7Esk7U3DxCE3jq81CRmThoh7gCwTEKxUFSvXqw5E-lCECWo47RQ/exec';
 const DOMAIN = 'buildwithin.com';
-// ────────────────────────────────────────────────────────────
-
 const DESKS = ['D1','D2','D3','D4','D5','D6'];
 const HOURS = ['9am','10am','11am','12pm','1pm','2pm','3pm','4pm'];
 
 let day = 0;
-let bookings = {}; // { 'YYYY-MM-DD': { 'D1-9am': {name, email}, ... } }
-let mine = {};     // { 'YYYY-MM-DDdeskKey': true }
-let sel = null;
+let bookings = {};
+let selectedDesk = null;
 let loading = false;
 
+// Populate hour dropdowns
+function populateHours() {
+  const from = document.getElementById('from-select');
+  const to = document.getElementById('to-select');
+  const ch = document.getElementById('cancel-hour');
+  HOURS.forEach(h => {
+    from.innerHTML += `<option value="${h}">${h}</option>`;
+    to.innerHTML += `<option value="${h}">${h}</option>`;
+    ch.innerHTML += `<option value="${h}">${h}</option>`;
+  });
+}
+populateHours();
+
 function dk(o) {
-  const d = new Date();
-  d.setDate(d.getDate() + o);
+  const d = new Date(); d.setDate(d.getDate() + o);
   return d.toISOString().slice(0,10);
 }
 function fmt(o) {
-  const d = new Date();
-  d.setDate(d.getDate() + o);
+  const d = new Date(); d.setDate(d.getDate() + o);
   return d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
 }
 
 async function fetchBookings(dateStr) {
-  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    // Demo mode — no backend yet
-    if (!bookings[dateStr]) bookings[dateStr] = {};
-    return;
-  }
   try {
     const res = await fetch(`${SCRIPT_URL}?action=getBookings&date=${dateStr}`);
     const data = await res.json();
     bookings[dateStr] = data.bookings || {};
   } catch(e) {
-    showMsg('Could not load bookings. Check your connection.', 'error');
     if (!bookings[dateStr]) bookings[dateStr] = {};
   }
 }
 
-function changeDay(d) { day += d; sel = null; loadAndRender(); }
+function changeDay(d) { day += d; selectedDesk = null; loadAndRender(); }
+
 function selectDesk(di) {
-  sel = (sel && sel.d === di && sel.h === null) ? null : {d: di, h: sel ? sel.h : null};
+  selectedDesk = (selectedDesk === di) ? null : di;
+  // sync form dropdown
+  document.getElementById('desk-select').value = selectedDesk !== null ? DESKS[selectedDesk] : '';
   render();
 }
-function toggleSlot(di, hi) {
-  const key = `${DESKS[di]}-${HOURS[hi]}`;
-  const dateStr = dk(day);
-  if (bookings[dateStr] && bookings[dateStr][key] && !mine[dateStr+key]) return;
-  sel = (sel && sel.d === di && sel.h === hi) ? null : {d: di, h: hi};
+
+function syncDeskFromForm() {
+  const val = document.getElementById('desk-select').value;
+  selectedDesk = val ? DESKS.indexOf(val) : null;
   render();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Get selected hour range as array of hour strings
+function getSelectedHours() {
+  const from = document.getElementById('from-select').value;
+  const to = document.getElementById('to-select').value;
+  if (!from || !to) return [];
+  const fi = HOURS.indexOf(from);
+  const ti = HOURS.indexOf(to);
+  if (fi < 0 || ti < 0 || ti < fi) return [];
+  return HOURS.slice(fi, ti + 1);
 }
 
 async function doBook() {
-  const email = document.getElementById('email-in').value.trim();
   const name = document.getElementById('name-in').value.trim();
-  if (!sel || sel.h === null) { showMsg('Select a desk and time slot first.', 'error'); return; }
-  if (!email || !email.endsWith('@' + DOMAIN)) { showMsg('Use your @' + DOMAIN + ' company email.', 'error'); return; }
-  if (!name) { showMsg('Enter your name.', 'error'); return; }
+  const email = document.getElementById('email-in').value.trim();
+  const hours = getSelectedHours();
+
+  if (selectedDesk === null) { showMsg('book', 'Select a desk first.', 'error'); return; }
+  if (!hours.length) { showMsg('book', 'Pick a valid time range (from must be before to).', 'error'); return; }
+  if (!name) { showMsg('book', 'Enter your name.', 'error'); return; }
+  if (!email || !email.endsWith('@' + DOMAIN)) { showMsg('book', 'Use your @' + DOMAIN + ' email.', 'error'); return; }
 
   const dateStr = dk(day);
-  const deskKey = `${DESKS[sel.d]}-${HOURS[sel.h]}`;
+  const bk = bookings[dateStr] || {};
 
-  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    // Demo mode
-    if (!bookings[dateStr]) bookings[dateStr] = {};
-    bookings[dateStr][deskKey] = { name, email };
-    mine[dateStr + deskKey] = true;
-    showMsg(`Booked! ${DESKS[sel.d]} at ${HOURS[sel.h]} on ${fmt(day)} for ${name}.`, 'success');
-    sel = null; render(); return;
+  // Check all slots in range are free
+  for (const h of hours) {
+    const key = `${DESKS[selectedDesk]}-${h}`;
+    if (bk[key]) { showMsg('book', `${DESKS[selectedDesk]} at ${h} is already booked. Please adjust your time.`, 'error'); return; }
   }
 
-  setLoading(true);
+  setLoading(true, 'book');
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'book', date: dateStr, desk: DESKS[sel.d], hour: HOURS[sel.h], name, email })
+      body: JSON.stringify({ action: 'bookRange', date: dateStr, desk: DESKS[selectedDesk], hours, name, email })
     });
     const data = await res.json();
     if (data.success) {
       if (!bookings[dateStr]) bookings[dateStr] = {};
-      bookings[dateStr][deskKey] = { name, email };
-      mine[dateStr + deskKey] = true;
-      showMsg(data.message, 'success');
-      sel = null;
+      hours.forEach(h => bookings[dateStr][`${DESKS[selectedDesk]}-${h}`] = { name, email });
+      showMsg('book', `Booked! ${DESKS[selectedDesk]} from ${hours[0]} to ${hours[hours.length-1]} on ${fmt(day)} for ${name}.`, 'success');
+      selectedDesk = null;
+      document.getElementById('desk-select').value = '';
+      document.getElementById('from-select').value = '';
+      document.getElementById('to-select').value = '';
     } else {
-      showMsg(data.error || 'Booking failed.', 'error');
-      await fetchBookings(dateStr); // refresh in case of conflict
+      showMsg('book', data.error || 'Booking failed.', 'error');
+      await fetchBookings(dateStr);
     }
   } catch(e) {
-    showMsg('Could not connect. Please try again.', 'error');
+    showMsg('book', 'Could not connect. Please try again.', 'error');
   }
-  setLoading(false);
+  setLoading(false, 'book');
   render();
 }
 
 async function doCancel() {
-  const email = document.getElementById('email-in').value.trim();
-  if (!sel || sel.h === null) { showMsg('Select your booked slot to cancel it.', 'error'); return; }
-  if (!email) { showMsg('Enter your email to cancel.', 'error'); return; }
+  const email = document.getElementById('cancel-email').value.trim();
+  const desk = document.getElementById('cancel-desk').value;
+  const hour = document.getElementById('cancel-hour').value;
+
+  if (!email || !email.endsWith('@' + DOMAIN)) { showMsg('cancel', 'Enter your @' + DOMAIN + ' email.', 'error'); return; }
+  if (!desk) { showMsg('cancel', 'Select a desk.', 'error'); return; }
+  if (!hour) { showMsg('cancel', 'Select an hour to cancel.', 'error'); return; }
 
   const dateStr = dk(day);
-  const deskKey = `${DESKS[sel.d]}-${HOURS[sel.h]}`;
-
-  if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
-    delete bookings[dateStr][deskKey];
-    delete mine[dateStr + deskKey];
-    showMsg('Booking cancelled.', 'success');
-    sel = null; render(); return;
-  }
-
-  setLoading(true);
+  setLoading(true, 'cancel');
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'cancel', date: dateStr, desk: DESKS[sel.d], hour: HOURS[sel.h], email })
+      body: JSON.stringify({ action: 'cancel', date: dateStr, desk, hour, email })
     });
     const data = await res.json();
     if (data.success) {
-      delete bookings[dateStr][deskKey];
-      delete mine[dateStr + deskKey];
-      showMsg('Booking cancelled.', 'success');
-      sel = null;
+      if (bookings[dateStr]) delete bookings[dateStr][`${desk}-${hour}`];
+      showMsg('cancel', `Booking for ${desk} at ${hour} cancelled.`, 'success');
     } else {
-      showMsg(data.error || 'Could not cancel.', 'error');
+      showMsg('cancel', data.error || 'Could not cancel. Make sure the email matches the original booking.', 'error');
     }
   } catch(e) {
-    showMsg('Could not connect. Please try again.', 'error');
+    showMsg('cancel', 'Could not connect. Please try again.', 'error');
   }
-  setLoading(false);
+  setLoading(false, 'cancel');
   render();
 }
 
-function setLoading(on) {
+function setLoading(on, tab) {
   loading = on;
-  document.getElementById('book-btn').disabled = on || !sel || sel.h === null;
-  if (on) showMsg('<span class="spinner"></span>Saving...', 'loading');
+  if (tab === 'book') document.getElementById('book-btn').disabled = on;
+  if (on) showMsg(tab, '<span class="spinner"></span>Saving...', 'loading');
 }
 
-function showMsg(html, type) {
-  const el = document.getElementById('msg');
-  el.innerHTML = html;
-  el.className = 'msg ' + type;
-  el.style.display = 'block';
-  if (type !== 'loading') setTimeout(() => el.style.display = 'none', 5000);
+function showMsg(tab, html, type) {
+  const el = document.getElementById('msg-' + tab);
+  el.innerHTML = html; el.className = 'msg ' + type; el.style.display = 'block';
+  if (type !== 'loading') setTimeout(() => el.style.display = 'none', 6000);
 }
 
 async function loadAndRender() {
   const dateStr = dk(day);
   document.getElementById('date-label').textContent = fmt(day);
   if (!bookings[dateStr]) {
-    showMsg('<span class="spinner"></span>Loading...', 'loading');
     await fetchBookings(dateStr);
-    document.getElementById('msg').style.display = 'none';
   }
   render();
 }
@@ -311,6 +377,7 @@ async function loadAndRender() {
 function render() {
   const dateStr = dk(day);
   const bk = bookings[dateStr] || {};
+  const selHours = getSelectedHours();
   document.getElementById('date-label').textContent = fmt(day);
   document.getElementById('desk-labels').innerHTML = DESKS.map(d => `<div class="desk-lbl">${d}</div>`).join('');
 
@@ -322,47 +389,31 @@ function render() {
     const tl = document.createElement('div'); tl.className = 'time-label'; tl.textContent = h; tlcol.appendChild(tl);
     const row = document.createElement('div'); row.className = 'slot-row';
     DESKS.forEach((_, di) => {
-      const key = `${DESKS[di]}-${HOURS[hi]}`;
+      const key = `${DESKS[di]}-${h}`;
       const s = document.createElement('div');
-      const booked = bk[key] && !mine[dateStr + key];
-      const isMine = mine[dateStr + key];
-      const isSel = sel && sel.d === di && sel.h === hi;
-      s.className = 'slot ' + (isSel ? 'selected' : booked ? 'booked' : isMine ? 'mine' : 'free');
-      if (!booked) s.onclick = () => toggleSlot(di, hi);
+      const booked = !!bk[key];
+      const isSelDesk = selectedDesk === di;
+      const inRange = isSelDesk && selHours.includes(h);
+      s.className = 'slot ' + (booked ? 'booked' : inRange ? 'in-range' : 'free');
       row.appendChild(s);
     });
     trows.appendChild(row);
   });
 
+  // Update map desk colors
   DESKS.forEach((_, di) => {
     const r = document.getElementById(`mr${di+1}`); if (!r) return;
-    const allBooked = HOURS.every((_, hi) => { const k = `${DESKS[di]}-${HOURS[hi]}`; return bk[k] && !mine[dateStr+k]; });
-    const isSel = sel && sel.d === di;
-    if (isSel)       { r.setAttribute('fill','#5dcaa5'); r.setAttribute('stroke','#1d9e75'); }
-    else if (allBooked) { r.setAttribute('fill','#f5c4b3'); r.setAttribute('stroke','#d85a30'); }
-    else             { r.setAttribute('fill','#e1f5ee'); r.setAttribute('stroke','#5dcaa5'); }
+    const allBooked = HOURS.every(h => bk[`${DESKS[di]}-${h}`]);
+    const isSel = selectedDesk === di;
+    if (isSel)         { r.setAttribute('fill','#5dcaa5'); r.setAttribute('stroke','#1d9e75'); }
+    else if (allBooked){ r.setAttribute('fill','#f5c4b3'); r.setAttribute('stroke','#d85a30'); }
+    else               { r.setAttribute('fill','#e1f5ee'); r.setAttribute('stroke','#5dcaa5'); }
   });
-
-  const si = document.getElementById('sel-info');
-  const btn = document.getElementById('book-btn');
-  const cancelBtn = document.getElementById('cancel-btn');
-
-  if (sel && sel.h !== null) {
-    const key = `${DESKS[sel.d]}-${HOURS[sel.h]}`;
-    const isMine = mine[dk(day) + key];
-    si.textContent = `Selected: ${DESKS[sel.d]} at ${HOURS[sel.h]}`;
-    btn.disabled = loading || isMine;
-    cancelBtn.style.display = isMine ? 'inline-block' : 'none';
-  } else if (sel) {
-    si.textContent = `${DESKS[sel.d]} selected — now pick a time slot.`;
-    btn.disabled = true;
-    cancelBtn.style.display = 'none';
-  } else {
-    si.textContent = 'Select a desk and time slot above to book.';
-    btn.disabled = true;
-    cancelBtn.style.display = 'none';
-  }
 }
+
+// Re-render when time dropdowns change
+document.getElementById('from-select').addEventListener('change', render);
+document.getElementById('to-select').addEventListener('change', render);
 
 loadAndRender();
 </script>
