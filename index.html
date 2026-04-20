@@ -22,49 +22,43 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 .time-grid{display:grid;grid-template-columns:56px 1fr}
 .time-label{font-size:11px;color:#999;padding-right:6px;text-align:right;display:flex;align-items:center;justify-content:flex-end;height:32px}
 .slot-row{display:flex;gap:3px;padding:2px 0;border-top:1px solid #eee;height:32px;align-items:center}
-.slot{flex:1;height:26px;border-radius:4px;cursor:pointer;border:1px solid transparent;transition:background .1s}
+.slot{flex:1;height:26px;border-radius:4px;border:1px solid transparent}
 .slot.free{background:#f0f0ee;border-color:#e0e0dd}
-.slot.free:hover{border-color:#9fe1cb;background:#e1f5ee}
-.slot.booked{background:#9fe1cb;border-color:#5dcaa5;cursor:default}
-.slot.mine{background:#b5d4f4;border-color:#85b7eb;cursor:pointer}
-.slot.selected{background:#5dcaa5;border-color:#1d9e75}
+.slot.booked{background:#9fe1cb;border-color:#5dcaa5}
 .slot.in-range{background:#c8eee3;border-color:#5dcaa5}
+.slot.cancel-range{background:#fad4d4;border-color:#f09595}
 .desk-labels{display:flex;gap:3px;padding-bottom:4px}
 .desk-lbl{flex:1;font-size:10px;color:#888;text-align:center}
 .legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
 .leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
 .leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
-.tabs{display:flex;gap:0;margin-bottom:1rem;border-bottom:1px solid #e0e0dd}
+.booking-panel{background:#fff;border:1px solid #e0e0dd;border-radius:12px;padding:1.25rem}
+.tabs{display:flex;margin-bottom:1.25rem;border-bottom:1px solid #e0e0dd}
 .tab{padding:8px 18px;font-size:13px;cursor:pointer;border:none;background:none;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px}
 .tab.active{color:#1d9e75;border-bottom-color:#1d9e75;font-weight:500}
 .tab-panel{display:none}.tab-panel.active{display:block}
-.booking-panel{background:#fff;border:1px solid #e0e0dd;border-radius:12px;padding:1.25rem}
-.booking-panel h3{font-size:15px;font-weight:500;margin-bottom:4px}
-.panel-sub{font-size:12px;color:#888;margin-bottom:14px}
 .form-row{margin-bottom:12px}
 .form-row label{font-size:13px;color:#666;display:block;margin-bottom:4px}
-.form-row input,select{width:100%;border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;color:#1a1a1a}
-.form-row input:focus{outline:none;border-color:#5dcaa5}
-.form-row select:focus{outline:none;border-color:#5dcaa5}
+.form-row input,.form-row select{width:100%;border:1px solid #ddd;border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;color:#1a1a1a}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:#5dcaa5}
 .hour-range{display:flex;align-items:center;gap:8px}
 .hour-range select{flex:1}
-.hour-range span{font-size:13px;color:#999}
-.btn{border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;font-weight:500;border:none}
-.btn-book{background:#1d9e75;color:#fff}
+.hour-range span{font-size:13px;color:#999;white-space:nowrap}
+.hint{font-size:12px;color:#aaa;margin-top:4px}
+.btn{border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;font-weight:500}
+.btn-book{background:#1d9e75;color:#fff;border:none}
 .btn-book:hover{background:#0f6e56}
-.btn-book:disabled{background:#eee;color:#aaa;cursor:default}
-.btn-cancel{background:#fff;color:#a32d2d;border:1px solid #f09595!important;border-width:1px;border-style:solid}
+.btn-book:disabled{background:#eee;color:#aaa;cursor:default;border:none}
+.btn-cancel{background:#fff;color:#a32d2d;border:1px solid #f09595}
 .btn-cancel:hover{background:#fcebeb}
-.sel-info{font-size:13px;color:#666;margin-bottom:12px;min-height:18px}
+.btn-cancel:disabled{background:#eee;color:#aaa;cursor:default;border:1px solid #ddd}
 .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px}
 .msg.success{background:#e1f5ee;color:#0f6e56;border:1px solid #5dcaa5}
 .msg.error{background:#fcebeb;color:#a32d2d;border:1px solid #f09595}
 .msg.loading{background:#f0f0ee;color:#555;border:1px solid #ddd}
-.mdbtn{cursor:pointer}
-.mdbtn:hover rect{opacity:.8}
+.mdbtn{cursor:pointer}.mdbtn:hover rect{opacity:.8}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid #ccc;border-top-color:#1d9e75;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-.hint{font-size:12px;color:#aaa;margin-top:4px}
 </style>
 </head>
 <body>
@@ -86,36 +80,12 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
           <rect x="4" y="4" width="172" height="140" rx="4" fill="none" stroke="#ccc" stroke-width="1.5"/>
           <rect x="72" y="3" width="36" height="5" rx="1" fill="#fafaf8"/>
           <text x="90" y="8" font-size="5.5" fill="#aaa" text-anchor="middle">door</text>
-          <g id="md1" class="mdbtn" onclick="selectDesk(0)">
-            <rect id="mr1" x="138" y="18" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
-            <text x="157" y="28" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D1</text>
-            <text x="171" y="29" font-size="8" fill="#0f6e56" text-anchor="middle">›</text>
-          </g>
-          <g id="md2" class="mdbtn" onclick="selectDesk(1)">
-            <rect id="mr2" x="138" y="38" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
-            <text x="157" y="48" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D2</text>
-            <text x="171" y="49" font-size="8" fill="#0f6e56" text-anchor="middle">›</text>
-          </g>
-          <g id="md3" class="mdbtn" onclick="selectDesk(2)">
-            <rect id="mr3" x="138" y="58" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
-            <text x="157" y="68" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D3</text>
-            <text x="171" y="69" font-size="8" fill="#0f6e56" text-anchor="middle">›</text>
-          </g>
-          <g id="md4" class="mdbtn" onclick="selectDesk(3)">
-            <rect id="mr4" x="4" y="18" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
-            <text x="23" y="27" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D4</text>
-            <text x="23" y="36" font-size="8" fill="#0f6e56" text-anchor="middle">↓</text>
-          </g>
-          <g id="md5" class="mdbtn" onclick="selectDesk(4)">
-            <rect id="mr5" x="4" y="40" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
-            <text x="23" y="53" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D5</text>
-            <text x="23" y="42" font-size="8" fill="#0f6e56" text-anchor="middle">↑</text>
-          </g>
-          <g id="md6" class="mdbtn" onclick="selectDesk(5)">
-            <rect id="mr6" x="4" y="78" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/>
-            <text x="23" y="88" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D6</text>
-            <text x="23" y="97" font-size="6" fill="#0f6e56" text-anchor="middle">solo</text>
-          </g>
+          <g id="md1" class="mdbtn" onclick="selectDesk(0)"><rect id="mr1" x="138" y="18" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/><text x="157" y="28" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D1</text><text x="171" y="29" font-size="8" fill="#0f6e56" text-anchor="middle">›</text></g>
+          <g id="md2" class="mdbtn" onclick="selectDesk(1)"><rect id="mr2" x="138" y="38" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/><text x="157" y="48" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D2</text><text x="171" y="49" font-size="8" fill="#0f6e56" text-anchor="middle">›</text></g>
+          <g id="md3" class="mdbtn" onclick="selectDesk(2)"><rect id="mr3" x="138" y="58" width="38" height="20" rx="0" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/><text x="157" y="68" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D3</text><text x="171" y="69" font-size="8" fill="#0f6e56" text-anchor="middle">›</text></g>
+          <g id="md4" class="mdbtn" onclick="selectDesk(3)"><rect id="mr4" x="4" y="18" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/><text x="23" y="27" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D4</text><text x="23" y="36" font-size="8" fill="#0f6e56" text-anchor="middle">↓</text></g>
+          <g id="md5" class="mdbtn" onclick="selectDesk(4)"><rect id="mr5" x="4" y="40" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/><text x="23" y="53" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D5</text><text x="23" y="42" font-size="8" fill="#0f6e56" text-anchor="middle">↑</text></g>
+          <g id="md6" class="mdbtn" onclick="selectDesk(5)"><rect id="mr6" x="4" y="78" width="38" height="20" rx="2" fill="#e1f5ee" stroke="#5dcaa5" stroke-width="1"/><text x="23" y="88" font-size="7.5" fill="#085041" text-anchor="middle" font-weight="500">D6</text><text x="23" y="97" font-size="6" fill="#0f6e56" text-anchor="middle">solo</text></g>
           <text x="168" y="50" font-size="5" fill="#bbb" text-anchor="middle" transform="rotate(90,168,50)">right wall</text>
           <text x="12" y="80" font-size="5" fill="#bbb" text-anchor="middle" transform="rotate(-90,12,80)">left wall</text>
         </svg>
@@ -123,7 +93,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
     </div>
 
     <div class="time-panel">
-      <h3>Availability — click a desk, then pick hours below</h3>
+      <h3>Availability — select a desk, then choose hours below</h3>
       <div class="time-grid">
         <div></div>
         <div class="desk-labels" id="desk-labels"></div>
@@ -133,15 +103,16 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
       <div class="legend">
         <div class="leg-item"><div class="leg-dot" style="background:#f0f0ee;border:1px solid #e0e0dd"></div>free</div>
         <div class="leg-item"><div class="leg-dot" style="background:#9fe1cb;border:1px solid #5dcaa5"></div>booked</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#b5d4f4;border:1px solid #85b7eb"></div>your booking</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#c8eee3;border:1px solid #5dcaa5"></div>booking range</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#fad4d4;border:1px solid #f09595"></div>cancel range</div>
       </div>
     </div>
   </div>
 
   <div class="booking-panel">
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('book')">Book a desk</button>
-      <button class="tab" onclick="switchTab('cancel')">Cancel a booking</button>
+      <button class="tab active" id="tab-btn-book" onclick="switchTab('book', this)">Book a desk</button>
+      <button class="tab" id="tab-btn-cancel" onclick="switchTab('cancel', this)">Cancel a booking</button>
     </div>
 
     <!-- BOOK TAB -->
@@ -158,11 +129,11 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
       <div class="form-row">
         <label>Time</label>
         <div class="hour-range">
-          <select id="from-select"><option value="">from</option></select>
+          <select id="from-select" onchange="render()"><option value="">from</option></select>
           <span>to</span>
-          <select id="to-select"><option value="">to</option></select>
+          <select id="to-select" onchange="render()"><option value="">to</option></select>
         </div>
-        <p class="hint">Select a desk on the map or above, then choose a start and end time.</p>
+        <p class="hint">Select a desk on the map or in the dropdown above, then choose a start and end time.</p>
       </div>
       <div class="form-row">
         <label>Your name</label>
@@ -177,27 +148,33 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
 
     <!-- CANCEL TAB -->
     <div class="tab-panel" id="tab-cancel">
-      <p class="panel-sub">Enter your email and select the booking you want to cancel.</p>
       <div class="msg" id="msg-cancel" style="display:none"></div>
       <div class="form-row">
-        <label>Your company email</label>
+        <label>Company email</label>
         <input type="email" id="cancel-email" placeholder="you@buildwithin.com"/>
       </div>
       <div class="form-row">
         <label>Desk</label>
-        <select id="cancel-desk">
+        <select id="cancel-desk" onchange="syncCancelDeskFromForm()">
           <option value="">— select a desk —</option>
           <option>D1</option><option>D2</option><option>D3</option>
           <option>D4</option><option>D5</option><option>D6</option>
         </select>
       </div>
       <div class="form-row">
-        <label>Hour to cancel</label>
-        <select id="cancel-hour">
-          <option value="">— select hour —</option>
-        </select>
+        <label>Date</label>
+        <input type="date" id="cancel-date"/>
       </div>
-      <button class="btn btn-cancel" onclick="doCancel()" style="border:1px solid #f09595">Cancel booking</button>
+      <div class="form-row">
+        <label>Time range to cancel</label>
+        <div class="hour-range">
+          <select id="cancel-from" onchange="render()"><option value="">from</option></select>
+          <span>to</span>
+          <select id="cancel-to" onchange="render()"><option value="">to</option></select>
+        </div>
+        <p class="hint">Cancels every hour in this range. Must match the email used when booking.</p>
+      </div>
+      <button class="btn btn-cancel" id="cancel-btn" onclick="doCancel()">Cancel booking</button>
     </div>
   </div>
 </div>
@@ -211,20 +188,19 @@ const HOURS = ['9am','10am','11am','12pm','1pm','2pm','3pm','4pm'];
 let day = 0;
 let bookings = {};
 let selectedDesk = null;
-let loading = false;
+let cancelDesk = null;
+let activeTab = 'book';
 
 // Populate hour dropdowns
-function populateHours() {
-  const from = document.getElementById('from-select');
-  const to = document.getElementById('to-select');
-  const ch = document.getElementById('cancel-hour');
-  HOURS.forEach(h => {
-    from.innerHTML += `<option value="${h}">${h}</option>`;
-    to.innerHTML += `<option value="${h}">${h}</option>`;
-    ch.innerHTML += `<option value="${h}">${h}</option>`;
-  });
-}
-populateHours();
+['from-select','to-select','cancel-from','cancel-to'].forEach(id => {
+  const el = document.getElementById(id);
+  HOURS.forEach(h => el.innerHTML += `<option value="${h}">${h}</option>`);
+});
+
+// Set cancel date default to today
+const today = new Date().toISOString().slice(0,10);
+document.getElementById('cancel-date').value = today;
+document.getElementById('cancel-date').min = today;
 
 function dk(o) {
   const d = new Date(); d.setDate(d.getDate() + o);
@@ -232,6 +208,10 @@ function dk(o) {
 }
 function fmt(o) {
   const d = new Date(); d.setDate(d.getDate() + o);
+  return d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+}
+function fmtDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
 }
 
@@ -245,12 +225,16 @@ async function fetchBookings(dateStr) {
   }
 }
 
-function changeDay(d) { day += d; selectedDesk = null; loadAndRender(); }
+function changeDay(d) { day += d; selectedDesk = null; document.getElementById('desk-select').value = ''; loadAndRender(); }
 
 function selectDesk(di) {
-  selectedDesk = (selectedDesk === di) ? null : di;
-  // sync form dropdown
-  document.getElementById('desk-select').value = selectedDesk !== null ? DESKS[selectedDesk] : '';
+  if (activeTab === 'cancel') {
+    cancelDesk = (cancelDesk === di) ? null : di;
+    document.getElementById('cancel-desk').value = cancelDesk !== null ? DESKS[cancelDesk] : '';
+  } else {
+    selectedDesk = (selectedDesk === di) ? null : di;
+    document.getElementById('desk-select').value = selectedDesk !== null ? DESKS[selectedDesk] : '';
+  }
   render();
 }
 
@@ -260,20 +244,26 @@ function syncDeskFromForm() {
   render();
 }
 
-function switchTab(tab) {
+function syncCancelDeskFromForm() {
+  const val = document.getElementById('cancel-desk').value;
+  cancelDesk = val ? DESKS.indexOf(val) : null;
+  render();
+}
+
+function switchTab(tab, btn) {
+  activeTab = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
+  render();
 }
 
-// Get selected hour range as array of hour strings
-function getSelectedHours() {
-  const from = document.getElementById('from-select').value;
-  const to = document.getElementById('to-select').value;
+function getHoursInRange(fromId, toId) {
+  const from = document.getElementById(fromId).value;
+  const to = document.getElementById(toId).value;
   if (!from || !to) return [];
-  const fi = HOURS.indexOf(from);
-  const ti = HOURS.indexOf(to);
+  const fi = HOURS.indexOf(from), ti = HOURS.indexOf(to);
   if (fi < 0 || ti < 0 || ti < fi) return [];
   return HOURS.slice(fi, ti + 1);
 }
@@ -281,23 +271,22 @@ function getSelectedHours() {
 async function doBook() {
   const name = document.getElementById('name-in').value.trim();
   const email = document.getElementById('email-in').value.trim();
-  const hours = getSelectedHours();
-
+  const hours = getHoursInRange('from-select', 'to-select');
   if (selectedDesk === null) { showMsg('book', 'Select a desk first.', 'error'); return; }
-  if (!hours.length) { showMsg('book', 'Pick a valid time range (from must be before to).', 'error'); return; }
+  if (!hours.length) { showMsg('book', 'Pick a valid time range — "from" must be before "to".', 'error'); return; }
   if (!name) { showMsg('book', 'Enter your name.', 'error'); return; }
   if (!email || !email.endsWith('@' + DOMAIN)) { showMsg('book', 'Use your @' + DOMAIN + ' email.', 'error'); return; }
 
   const dateStr = dk(day);
   const bk = bookings[dateStr] || {};
-
-  // Check all slots in range are free
   for (const h of hours) {
-    const key = `${DESKS[selectedDesk]}-${h}`;
-    if (bk[key]) { showMsg('book', `${DESKS[selectedDesk]} at ${h} is already booked. Please adjust your time.`, 'error'); return; }
+    if (bk[`${DESKS[selectedDesk]}-${h}`]) {
+      showMsg('book', `${DESKS[selectedDesk]} at ${h} is already booked. Adjust your time range.`, 'error'); return;
+    }
   }
 
-  setLoading(true, 'book');
+  document.getElementById('book-btn').disabled = true;
+  showMsg('book', '<span class="spinner"></span>Saving...', 'loading');
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
@@ -307,7 +296,7 @@ async function doBook() {
     if (data.success) {
       if (!bookings[dateStr]) bookings[dateStr] = {};
       hours.forEach(h => bookings[dateStr][`${DESKS[selectedDesk]}-${h}`] = { name, email });
-      showMsg('book', `Booked! ${DESKS[selectedDesk]} from ${hours[0]} to ${hours[hours.length-1]} on ${fmt(day)} for ${name}.`, 'success');
+      showMsg('book', `Booked! ${DESKS[selectedDesk]}, ${hours[0]}–${hours[hours.length-1]} on ${fmt(day)} for ${name}.`, 'success');
       selectedDesk = null;
       document.getElementById('desk-select').value = '';
       document.getElementById('from-select').value = '';
@@ -319,44 +308,47 @@ async function doBook() {
   } catch(e) {
     showMsg('book', 'Could not connect. Please try again.', 'error');
   }
-  setLoading(false, 'book');
+  document.getElementById('book-btn').disabled = false;
   render();
 }
 
 async function doCancel() {
   const email = document.getElementById('cancel-email').value.trim();
   const desk = document.getElementById('cancel-desk').value;
-  const hour = document.getElementById('cancel-hour').value;
+  const dateStr = document.getElementById('cancel-date').value;
+  const hours = getHoursInRange('cancel-from', 'cancel-to');
 
   if (!email || !email.endsWith('@' + DOMAIN)) { showMsg('cancel', 'Enter your @' + DOMAIN + ' email.', 'error'); return; }
   if (!desk) { showMsg('cancel', 'Select a desk.', 'error'); return; }
-  if (!hour) { showMsg('cancel', 'Select an hour to cancel.', 'error'); return; }
+  if (!dateStr) { showMsg('cancel', 'Select a date.', 'error'); return; }
+  if (!hours.length) { showMsg('cancel', 'Pick a valid time range — "from" must be before "to".', 'error'); return; }
 
-  const dateStr = dk(day);
-  setLoading(true, 'cancel');
+  document.getElementById('cancel-btn').disabled = true;
+  showMsg('cancel', '<span class="spinner"></span>Cancelling...', 'loading');
+
   try {
     const res = await fetch(SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify({ action: 'cancel', date: dateStr, desk, hour, email })
+      body: JSON.stringify({ action: 'cancelRange', date: dateStr, desk, hours, email })
     });
     const data = await res.json();
     if (data.success) {
-      if (bookings[dateStr]) delete bookings[dateStr][`${desk}-${hour}`];
-      showMsg('cancel', `Booking for ${desk} at ${hour} cancelled.`, 'success');
+      if (bookings[dateStr]) {
+        hours.forEach(h => delete bookings[dateStr][`${desk}-${h}`]);
+      }
+      showMsg('cancel', `Cancelled ${desk}, ${hours[0]}–${hours[hours.length-1]} on ${fmtDate(dateStr)}.`, 'success');
+      document.getElementById('cancel-desk').value = '';
+      document.getElementById('cancel-from').value = '';
+      document.getElementById('cancel-to').value = '';
+      cancelDesk = null;
     } else {
       showMsg('cancel', data.error || 'Could not cancel. Make sure the email matches the original booking.', 'error');
     }
   } catch(e) {
     showMsg('cancel', 'Could not connect. Please try again.', 'error');
   }
-  setLoading(false, 'cancel');
+  document.getElementById('cancel-btn').disabled = false;
   render();
-}
-
-function setLoading(on, tab) {
-  loading = on;
-  if (tab === 'book') document.getElementById('book-btn').disabled = on;
-  if (on) showMsg(tab, '<span class="spinner"></span>Saving...', 'loading');
 }
 
 function showMsg(tab, html, type) {
@@ -368,16 +360,15 @@ function showMsg(tab, html, type) {
 async function loadAndRender() {
   const dateStr = dk(day);
   document.getElementById('date-label').textContent = fmt(day);
-  if (!bookings[dateStr]) {
-    await fetchBookings(dateStr);
-  }
+  if (!bookings[dateStr]) await fetchBookings(dateStr);
   render();
 }
 
 function render() {
   const dateStr = dk(day);
   const bk = bookings[dateStr] || {};
-  const selHours = getSelectedHours();
+  const bookHours = getHoursInRange('from-select', 'to-select');
+  const cancelHours = getHoursInRange('cancel-from', 'cancel-to');
   document.getElementById('date-label').textContent = fmt(day);
   document.getElementById('desk-labels').innerHTML = DESKS.map(d => `<div class="desk-lbl">${d}</div>`).join('');
 
@@ -392,28 +383,25 @@ function render() {
       const key = `${DESKS[di]}-${h}`;
       const s = document.createElement('div');
       const booked = !!bk[key];
-      const isSelDesk = selectedDesk === di;
-      const inRange = isSelDesk && selHours.includes(h);
-      s.className = 'slot ' + (booked ? 'booked' : inRange ? 'in-range' : 'free');
+      const inBookRange = activeTab === 'book' && selectedDesk === di && bookHours.includes(h);
+      const inCancelRange = activeTab === 'cancel' && cancelDesk === di && cancelHours.includes(h);
+      s.className = 'slot ' + (inCancelRange ? 'cancel-range' : inBookRange ? 'in-range' : booked ? 'booked' : 'free');
       row.appendChild(s);
     });
     trows.appendChild(row);
   });
 
-  // Update map desk colors
   DESKS.forEach((_, di) => {
     const r = document.getElementById(`mr${di+1}`); if (!r) return;
     const allBooked = HOURS.every(h => bk[`${DESKS[di]}-${h}`]);
-    const isSel = selectedDesk === di;
-    if (isSel)         { r.setAttribute('fill','#5dcaa5'); r.setAttribute('stroke','#1d9e75'); }
-    else if (allBooked){ r.setAttribute('fill','#f5c4b3'); r.setAttribute('stroke','#d85a30'); }
-    else               { r.setAttribute('fill','#e1f5ee'); r.setAttribute('stroke','#5dcaa5'); }
+    const isBookSel = activeTab === 'book' && selectedDesk === di;
+    const isCancelSel = activeTab === 'cancel' && cancelDesk === di;
+    if (isBookSel)      { r.setAttribute('fill','#5dcaa5'); r.setAttribute('stroke','#1d9e75'); }
+    else if (isCancelSel){ r.setAttribute('fill','#f5c4b3'); r.setAttribute('stroke','#d85a30'); }
+    else if (allBooked)  { r.setAttribute('fill','#f5c4b3'); r.setAttribute('stroke','#d85a30'); }
+    else                 { r.setAttribute('fill','#e1f5ee'); r.setAttribute('stroke','#5dcaa5'); }
   });
 }
-
-// Re-render when time dropdowns change
-document.getElementById('from-select').addEventListener('change', render);
-document.getElementById('to-select').addEventListener('change', render);
 
 loadAndRender();
 </script>
