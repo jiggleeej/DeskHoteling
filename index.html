@@ -221,7 +221,7 @@ function fmtDate(dateStr) {
 
 async function fetchBookings(dateStr) {
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=getBookings&date=${dateStr}`);
+    const res = await fetch(`${https://script.google.com/a/macros/buildwithin.com/s/AKfycbx4toGoAqhpldfEGeq7Esk7U3DxCE3jq81CRmThoh7gCwTEKxUFSvXqw5E-lCECWo47RQ/exec}?action=getBookings&date=${dateStr}`);
     const data = await res.json();
     bookings[dateStr] = data.bookings || {};
   } catch(e) {
