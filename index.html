@@ -137,7 +137,7 @@ h1{font-size:20px;font-weight:500;margin-bottom:4px}
       </div>
       <div class="form-row">
         <label>Your name</label>
-        <input type="text" id="name-in" placeholder="First name"/>
+        <input type="text" id="name-in" placeholder="Your name"/>
       </div>
       <div class="form-row">
         <label>Company email</label>
@@ -200,7 +200,7 @@ let activeTab = 'book';
 // Set cancel date default to today
 const today = new Date().toISOString().slice(0,10);
 document.getElementById('cancel-date').value = today;
-document.getElementById('cancel-date').min = today;
+
 
 function dk(o) {
   const d = new Date(); d.setDate(d.getDate() + o);
